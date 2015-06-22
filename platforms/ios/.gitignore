@@ -1,0 +1,11 @@
+*.mode1v3
+*.perspectivev3
+*.pbxuser
+.DS_Store
+build/
+
+/build
+/www
+/cordova/console.log
+*.xcuserdatad
+*.xcworkspace
