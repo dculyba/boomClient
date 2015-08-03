@@ -1,7 +1,7 @@
 /**
  * Created by sabrina on 7/27/2015.
  */
-function Question() {
+function Question(data) {
     this.time_asked = ko.observable(data.time_asked);
     this.text = ko.observable(data.text);
     this.yes_count = ko.observable(data.yes_count);
@@ -38,7 +38,7 @@ function QuestionViewModel()
         gapi.auth.authorize({client_id: '638374801515-n10hc1195mq8jt42qu881uvdhbt9ogue.apps.googleusercontent.com',
                 scope: 'https://www.googleapis.com/auth/userinfo.email', immediate: mode},
             authorizeCallback);
-    }
+    };
 
     /**
      * Presents the user with the authorization popup.
@@ -56,7 +56,7 @@ function QuestionViewModel()
     var enableButtons = function() {
         var signinButton = document.querySelector('#signinButton');
         signinButton.addEventListener('click', auth);
-    }
+    };
 
     var userAuthed = function userAuthed() {
         var request =
@@ -68,31 +68,27 @@ function QuestionViewModel()
                     document.querySelector('#authedGreeting').disabled = false;
                 }
             });
-    }
+    };
 
+    self.processQuestionDataInJSON = function(questionDataInJSON) {
+        console.error(questionDataInJSON.questions);
+        for (var i = 0; i<questionDataInJSON.questions.length; i++) {
+            self.questions.push(new Question(questionDataInJSON.questions[i]));
+        }
+        console.error("self.questions: " + self.questions.toString());
+    };
 
 
 
     self.loadData = function() {
-        $.getJSON("https://boom-it.appspot.com/_ah/api/boom/v1/questions", function (allData) {
-            var mappedQuestions = $.map(allData, function (item) {
-                return new Question(item)
-            });
-            self.questions(mappedQuestions);
-        });
-    }
+        $.getJSON("https://boom-it.appspot.com/_ah/api/boom/v1/questions", self.processQuestionDataInJSON);
+    };
+
+
 
     self.loadAllQuestions = function() {
         self.questions.removeAll();
         self.loadData();
-
-        for (var i = 0; i<questions.length; i++)
-        {
-            var question = new Question(
-                questions[i].questionText
-            );
-            self.questions.push(question);
-        }
     };
 
     self.viewAllQuestions = function() {
@@ -102,7 +98,7 @@ function QuestionViewModel()
     self.answerQuestion = function() {
         self.currentContext("AnswerQuestion");
         self.currentQuestion = this;
-        self.selectedQuestionText(this.questionText);
+        self.selectedQuestionText(this.text);
     };
 
     self.newQuestion = function() {

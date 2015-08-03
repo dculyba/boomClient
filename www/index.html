@@ -41,12 +41,12 @@
         </form>
 
         <!-- boom screens -->
-        <div data-bind=visible: currentContext() == 'QuestionsList'">
+        <div data-bind="visible: currentContext() == 'QuestionsList'">
             <br>
             <br>
             Questions List view
             <ul data-bind="foreach: questions">
-                <h2 data-bind="text: questionText"></h2>
+                <h2 data-bind="text: text"></h2>
 
             </ul>
         </div>
