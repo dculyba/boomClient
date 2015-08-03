@@ -29,8 +29,8 @@ function QuestionViewModel()
         };
 
         apisToLoad = 2; // must match number of calls to gapi.client.load()
-        apiRoot = 'https://boom-it.appspot.com/_ah/api/';
-        gapi.client.load('boom', 'v1', loadCallback, apiRoot);
+        apiRoot = 'https://boom-it.appspot.com/_ah/api/boom';
+        gapi.client.load('boom-it', 'v1', loadCallback, apiRoot);
         gapi.client.load('oauth2', 'v2', loadCallback);
     }
 
