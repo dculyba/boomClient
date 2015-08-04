@@ -1,6 +1,4 @@
-/**
- * Created by sabrina on 7/27/2015.
- */
+//** Questions Class **//
 function Question(data) {
     this.time_asked = ko.observable(data.time_asked);
     this.text = ko.observable(data.text);
@@ -8,12 +6,16 @@ function Question(data) {
     this.no_count = ko.observable(data.no_count);
     this.asker_id = ko.observable(data.asker_id);
     this.id = ko.observable(data.id);
-}
+};
 
-var signedInToGoogleAndBoom = false;
+CLIENT_ID = '638374801515-n10hc1195mq8jt42qu881uvdhbt9ogue.apps.googleusercontent.com';
+SCOPES = 'https://www.googleapis.com/auth/userinfo.email';
+API_ROOT = 'https://boom-it.appspot.com/_ah/api/';
+
 function QuestionViewModel()
 {
     var self = this;
+    self.authenticated = false;
     self.questions = ko.observableArray();
     self.currentContext = ko.observable("QuestionsList");
     self.selectedQuestionText = ko.observable("");
@@ -29,27 +31,33 @@ function QuestionViewModel()
         };
 
         apisToLoad = 2; // must match number of calls to gapi.client.load()
-        apiRoot = 'https://boom-it.appspot.com/_ah/api/';
-        gapi.client.load('boom', 'v1', loadCallback, apiRoot);
+        gapi.client.load('boom', 'v1', loadCallback, API_ROOT);
         gapi.client.load('oauth2', 'v2', loadCallback);
     }
 
     var signin = function signin(mode, authorizeCallback) {
-        gapi.auth.authorize({client_id: '638374801515-n10hc1195mq8jt42qu881uvdhbt9ogue.apps.googleusercontent.com',
-                scope: 'https://www.googleapis.com/auth/userinfo.email', immediate: mode},
-            authorizeCallback);
+        gapi.auth.authorize({client_id: CLIENT_ID, scope: SCOPES, immediate: mode}, authorizeCallback);
     };
 
+
+    var signout = function signout() {
+        gapi.auth2.init({client_id: CLIENT_ID});
+        var auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+            console.log('User signed out.');
+        });
+    }
     /**
      * Presents the user with the authorization popup.
      */
     var auth = function() {
-        if (!signedInToGoogleAndBoom) {
+        if (!self.authenticated) {
             signin(false,userAuthed);
-        } else {
-            signedInToGoogleAndBoom = false;
+        }
+        else
+        {
+            self.authenticated = false;
             document.querySelector('#signinButton').textContent = 'Sign in';
-            document.querySelector('#authedGreeting').disabled = true;
         }
     };
 
@@ -63,9 +71,9 @@ function QuestionViewModel()
             gapi.client.oauth2.userinfo.get().execute(function(resp) {
                 if (!resp.code) {
                     // User is signed in, call my Endpoint
-                    signedInToGoogleAndBoom = true;
+                    self.authenticated = true;
                     document.querySelector('#signinButton').textContent = 'Sign out';
-                    document.querySelector('#authedGreeting').disabled = false;
+                    signinButton.addEventListener('click', signout);
                 }
             });
     };
@@ -84,7 +92,24 @@ function QuestionViewModel()
         $.getJSON("https://boom-it.appspot.com/_ah/api/boom/v1/questions", self.processQuestionDataInJSON);
     };
 
+    self.submitQuestion = function() {
 
+        $.ajax({
+            type: 'POST',
+            url: "https://boom-it.appspot.com/_ah/api/boom/v1/questionsInsert",
+            data: JSON.stringify({ question_text: "Test Question"}),
+            dataType: "json",
+            contentType: "application/json",
+            accepts: {
+                xml: 'text/xml',
+                text: 'text/plain'
+            }
+        });
+
+    };
+
+// Behaviours
+    self.goToContext = function(contextRequest) { self.currentContext(contextRequest); };
 
     self.loadAllQuestions = function() {
         self.questions.removeAll();
