@@ -39,7 +39,7 @@
         <nav>
             <ul>
                 <li><a data-bind="click:viewAllQuestions">See All Questions</a></li>
-                <li><a data-bind="click:submitQuestion">Ask a Questions</a></li>
+                <li><a data-bind="click:newQuestion">Ask a Question</a></li>
             </ul>
         </nav>
         <!-- boom screens -->
@@ -56,6 +56,8 @@
             <br>
             <br>
             New Question View
+            <p>What's your question: <input data-bind="value: newQuestionToAsk" /></p>
+            <button data-bind="click:submitQuestion">Ask!</button>
         </div>
         <div data-bind="visible: currentContext() == 'AnswerQuestion'">
             <br>

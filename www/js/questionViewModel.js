@@ -19,6 +19,7 @@ function QuestionViewModel()
     self.questions = ko.observableArray();
     self.currentContext = ko.observable("QuestionsList");
     self.selectedQuestionText = ko.observable("");
+    self.newQuestionToAsk = ko.observable("");
 
     function init() {
         var apisToLoad;
@@ -89,23 +90,14 @@ function QuestionViewModel()
 
 
     self.loadData = function() {
-        $.getJSON("https://boom-it.appspot.com/_ah/api/boom/v1/questions", self.processQuestionDataInJSON);
+        gapi.client.boom.questions.listQuestions().execute(self.processQuestionDataInJSON);
     };
 
-    self.submitQuestion = function() {
-
-        $.ajax({
-            type: 'POST',
-            url: "https://boom-it.appspot.com/_ah/api/boom/v1/questionsInsert",
-            data: JSON.stringify({ question_text: "Test Question"}),
-            dataType: "json",
-            contentType: "application/json",
-            accepts: {
-                xml: 'text/xml',
-                text: 'text/plain'
-            }
-        });
-
+    self.submitQuestion = function()
+    {
+        var questionObject = gapi.client.boom.questions.insertQuestion({'question_text':
+            self.newQuestionToAsk()}).execute(self.loadAllQuestions);
+        self.viewAllQuestions();
     };
 
 // Behaviours
